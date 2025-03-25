@@ -8,6 +8,9 @@ import { JwtStrategy } from "../auth/jwt.strategy";
 import { LocalStrategy } from "../auth/local.strategy";
 import { AuthController } from "../auth/use-cases/auth.controller";
 import { UserRepo } from "./repositories/user-repo";
+import { CreateUserService } from './use-cases/create-user/create-user.service';
+import { CreateUserController } from "./use-cases/create-user/create-user.controller";
+
 
 @Module({
   imports: [DatabaseModule, JwtModule.register({
@@ -15,8 +18,8 @@ import { UserRepo } from "./repositories/user-repo";
     secret: JWT_SECRET,
     signOptions: { expiresIn: '1d' },
   }),],
-  controllers: [AuthController],
-  providers: [GetByEmailService, AuthService, LocalStrategy, JwtStrategy, UserRepo, { provide: "IUserRepo", useExisting: UserRepo }],
+  controllers: [AuthController, CreateUserController],
+  providers: [GetByEmailService, AuthService, LocalStrategy, JwtStrategy, UserRepo, { provide: "IUserRepo", useExisting: UserRepo }, CreateUserService],
   exports: ['IUserRepo', GetByEmailService]
 })
 export class UserModule { }
