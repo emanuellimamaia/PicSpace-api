@@ -10,10 +10,9 @@ export class UploadPictureController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@UploadedFile(new ParseFilePipe({
     validators: [
-      new MaxFileSizeValidator({ maxSize: 10000000 }),
       new FileTypeValidator({ fileType: 'image/*' })
     ]
   })) file: Express.Multer.File) {
-    await this.uploadPictureService.upload(file.originalname, file.buffer)
+    await this.uploadPictureService.upload(file.originalname, file.buffer, file.mimetype)
   }
 }
