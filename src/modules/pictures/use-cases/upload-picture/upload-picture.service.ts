@@ -13,8 +13,8 @@ export class UploadPictureService {
   constructor(private readonly configService: ConfigService) { }
   async upload(fileName: string, file: Buffer, mimeType: string) {
     const safeFileName = fileName
-      .replace(/\s+/g, '-') // Substitui espaços por hífen
-      .replace(/[()]/g, ''); // Remove parênteses
+      .replace(/\s+/g, '-')
+      .replace(/[()]/g, '');
 
     try {
       const response = await this.s3Client.send(
@@ -27,8 +27,6 @@ export class UploadPictureService {
           ContentDisposition: 'inline'
         }),
       );
-
-      console.log('Upload concluído com sucesso:', response);
 
       return {
         url: `https://${this.configService.getOrThrow('AWS_S3_BUCKET_NAME')}.s3.${this.configService.getOrThrow('AWS_S3_REGION')}.amazonaws.com/${fileName}`,
