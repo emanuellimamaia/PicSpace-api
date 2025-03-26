@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { PicturesModule } from '../modules/pictures.modules';
+import { PicturesModule } from '../modules/pictures/pictures.modules';
 import { ConfigModule } from '@nestjs/config';
 import { ClarifaiModule } from '../modules/clarifai/clarifai.module';
 import { DatabaseModule } from 'src/infra/database.module';

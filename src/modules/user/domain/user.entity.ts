@@ -16,7 +16,9 @@ export class User extends Entity<UserProps> {
   static create(props: UserProps, metadata?: EntityMetadata) {
     return new User(props, metadata)
   }
-
+  get id() {
+    return this.props.id
+  }
   get username() {
     return this.props.username
   }

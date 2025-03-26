@@ -32,6 +32,7 @@ export class AuthService {
   }
   getToken(user: Pick<User, 'id' | 'username' | 'email'>): string {
     const payload = {
+      id: user.id,
       username: user.username,
       email: user.email,
 

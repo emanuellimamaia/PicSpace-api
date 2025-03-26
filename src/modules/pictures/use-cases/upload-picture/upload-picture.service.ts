@@ -1,22 +1,43 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+
+import { SavePictureService } from '../save-picture/save-picture.service';
+import { Picture } from '../../domain/picture.entity';
+import { Tag } from '../../domain/tag.entity';
+import { ClarifaiService } from 'src/modules/clarifai/use-cases/clarifai.service';
+
 
 @Injectable()
 export class UploadPictureService {
-  private readonly s3Client = new S3Client({
-    region: this.configService.getOrThrow('AWS_S3_REGION'),
-    endpoint: `https://s3.${this.configService.getOrThrow('AWS_S3_REGION')}.amazonaws.com`,
-    forcePathStyle: true,
-  });
+  private s3Client: S3Client;
 
-  constructor(private readonly configService: ConfigService) { }
-  async upload(fileName: string, file: Buffer, mimeType: string) {
+  constructor(
+    private readonly clarifaiService: ClarifaiService,
+    private readonly configService: ConfigService,
+    private readonly savePictureService: SavePictureService
+  ) {
+    this.s3Client = new S3Client({
+      region: this.configService.getOrThrow('AWS_S3_REGION'),
+      endpoint: `https://s3.${this.configService.getOrThrow('AWS_S3_REGION')}.amazonaws.com`,
+      forcePathStyle: true,
+    });
+  }
+
+  async upload(fileName: string, file: Buffer, mimeType: string, userId: string) {
     const safeFileName = fileName
       .replace(/\s+/g, '-')
       .replace(/[()]/g, '');
-
     try {
+      // Analyze image with Clarifai first
+      const clarifaiResponse = await this.clarifaiService.analyzeImage(file);
+
+      // Get top 3 concepts (tags) from Clarifai response
+      const topTags = clarifaiResponse
+        .slice(0, 3)
+        .map(concept => concept.name);
+
+      // Upload to S3
       const response = await this.s3Client.send(
         new PutObjectCommand({
           Bucket: this.configService.getOrThrow('AWS_S3_BUCKET_NAME'),
@@ -28,14 +49,26 @@ export class UploadPictureService {
         }),
       );
 
+      const imageUrl = `https://${this.configService.getOrThrow('AWS_S3_BUCKET_NAME')}.s3.${this.configService.getOrThrow('AWS_S3_REGION')}.amazonaws.com/${fileName}`;
+
+      // Create Picture entity
+      const picture = Picture.create({
+        imageUrl,
+        userId,
+        tags: topTags.map(tag => Tag.create({ name: tag }))
+      });
+
+      // Save picture
+      const savedPicture = await this.savePictureService.execute(picture);
+
       return {
-        url: `https://${this.configService.getOrThrow('AWS_S3_BUCKET_NAME')}.s3.${this.configService.getOrThrow('AWS_S3_REGION')}.amazonaws.com/${fileName}`,
+        url: imageUrl,
         key: fileName,
-        response
+        response,
+        tags: savedPicture.tags
       };
     } catch (error) {
-      console.error('Erro ao fazer upload:', error);
-      throw error;
+      throw new InternalServerErrorException('Erro ao fazer upload da imagem');
     }
   }
 }

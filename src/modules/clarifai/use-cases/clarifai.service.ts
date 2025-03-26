@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 
 @Injectable()
-export class ImageAnalysisService {
+export class ClarifaiService {
   private readonly apiKey: string;
   private readonly modelId = 'general-image-recognition';
   private readonly modelVersion = 'aa7f35c01e0642fda5cf400f543e7c40';
@@ -13,20 +13,29 @@ export class ImageAnalysisService {
     this.apiKey = this.configService.getOrThrow('CLARIFAI_API_KEY');
   }
 
-  async analyzeImage(imageUrl: string) {
+  async analyzeImage(input: string | Buffer) {
     try {
+      const imageData = typeof input === 'string'
+        ? { url: input }
+        : { base64: input.toString('base64') };
+
       const response = await axios.post(
         `${this.baseUrl}/models/${this.modelId}/versions/${this.modelVersion}/outputs`,
         {
           inputs: [
             {
               data: {
-                image: {
-                  url: imageUrl
-                }
+                image: imageData
               }
             }
-          ]
+          ],
+          model: {
+            output_info: {
+              output_config: {
+                language: 'pt'
+              }
+            }
+          }
         },
         {
           headers: {
