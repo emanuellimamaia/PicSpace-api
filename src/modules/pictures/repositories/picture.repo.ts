@@ -7,42 +7,44 @@ import { PictureMappers } from "../mappers/picture.mappers";
 @Injectable()
 export class PictureRepo implements IPictureRepo {
   constructor(private readonly prisma: PrismaService) { }
+
   async savePicture(picture: Picture): Promise<Picture> {
     try {
-      // Executa a transação
-      const result = await this.prisma.$transaction(async (prisma) => {
-
-        const createdPicture = await prisma.picture.create({
-          data: {
-            imageUrl: picture.imageUrl,
-            user: {
-              connect: { id: picture.userId },
-            },
+      // Criar a imagem e as tags em uma única transação
+      const pictureData = await this.prisma.picture.create({
+        data: {
+          imageUrl: picture.imageUrl,
+          user: {
+            connect: {
+              id: picture.userId
+            }
           },
-        });
-
-
-        await prisma.tag.createMany({
-          data: picture.tags.map(tag => ({
-            name: tag.name,
-            imageId: createdPicture.id,
-          })),
-        });
-
-
-        return prisma.picture.findUnique({
-          where: { id: createdPicture.id },
-          include: { tags: true },
-        });
+          tags: {
+            create: picture.tags.map(tag => ({
+              name: tag.name
+            }))
+          }
+        },
+        include: {
+          tags: true
+        }
       });
-
-      return PictureMappers.toDomain(result!);
-
+      console.log('Saved picture data:', JSON.stringify(pictureData, null, 2));
+      return PictureMappers.toDomain(pictureData);
     } catch (error) {
-      console.error('Erro ao salvar a imagem:', error);
-      throw new Error('Erro ao salvar a imagem');
+      console.error('Error saving picture:', error);
+      throw new Error('Error ao salvar a imagem');
     }
   }
 
-
+  async getPictures(userId: string): Promise<Picture[]> {
+    const pictures = await this.prisma.picture.findMany({
+      where: { userId },
+      include: {
+        tags: true
+      }
+    });
+    console.log('Pictures from DB:', JSON.stringify(pictures, null, 2));
+    return pictures.map(PictureMappers.toDomain);
+  }
 }

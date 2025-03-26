@@ -8,7 +8,10 @@ export class PictureMappers {
       id: raw.id,
       imageUrl: raw.imageUrl,
       userId: raw.userId,
-      tags: raw.tags ? raw.tags.map(tag => Tag.create({ id: tag.id, name: tag.name, imageId: tag.id })) : [],
+      tags: raw.tags ? raw.tags.map(tag => Tag.create({
+        id: tag.id,
+        name: tag.name
+      })) : [],
     }, {
       id: raw.id,
       created_at: raw.createdAt,
@@ -25,6 +28,8 @@ export class PictureMappers {
         id: tag.id,
         name: tag.name
       })),
+      createdAt: picture.created_at,
+      updatedAt: picture.updated_at
     }
   }
 }

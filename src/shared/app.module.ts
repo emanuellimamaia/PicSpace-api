@@ -16,7 +16,7 @@ import { AuthModule } from 'src/modules/auth/auth.module';
     ClarifaiModule,
     DatabaseModule,
     AuthModule,
-    UserModule
+    UserModule,
   ],
 })
 export class AppModule { }

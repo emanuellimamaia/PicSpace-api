@@ -1,9 +1,11 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { GetPicturesService } from './get-pictures.service';
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+
 import { ApiBearerAuth, ApiExtraModels, ApiTags } from '@nestjs/swagger';
-import { AuthUserDto } from 'src/modules/auth/dto/auth-user.dto';
-import { AuthGuard } from '@nestjs/passport';
+
 import { JwtAuthGuard } from 'src/modules/auth/jwt.guard';
+import { GetPicturesService } from './get-pictures.service';
+import { Request } from 'express';
+import { PictureMappers } from '../../mappers/picture.mappers';
 
 @ApiTags('Pictures')
 @Controller('pictures')
@@ -11,11 +13,11 @@ import { JwtAuthGuard } from 'src/modules/auth/jwt.guard';
 export class GetPicturesController {
   constructor(private readonly getPicturesService: GetPicturesService) { }
 
-
-
   @UseGuards(JwtAuthGuard)
   @Get()
-  async getAllPictures() {
-    return this.getPicturesService.getAllPictures();
+  async getAllPictures(@Req() req: Request) {
+    const user = req.user as { id: string };
+    const pictures = await this.getPicturesService.getPictures(user.id);
+    return pictures.map(picture => PictureMappers.toDto(picture));
   }
 } 
