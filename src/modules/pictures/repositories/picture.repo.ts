@@ -37,14 +37,22 @@ export class PictureRepo implements IPictureRepo {
     }
   }
 
-  async getPictures(userId: string): Promise<Picture[]> {
+  async getPictures(userId: string, tag?: string): Promise<Picture[]> {
     const pictures = await this.prisma.picture.findMany({
-      where: { userId },
+      where: {
+        userId,
+        ...(tag && {
+          tags: {
+            some: {
+              name: tag
+            }
+          }
+        })
+      },
       include: {
         tags: true
       }
     });
-    console.log('Pictures from DB:', JSON.stringify(pictures, null, 2));
-    return pictures.map(PictureMappers.toDomain);
+    return pictures.map(picture => PictureMappers.toDomain(picture));
   }
 }

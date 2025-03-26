@@ -1,6 +1,6 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
 
-import { ApiBearerAuth, ApiExtraModels, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiExtraModels, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from 'src/modules/auth/jwt.guard';
 import { GetPicturesService } from './get-pictures.service';
@@ -15,9 +15,10 @@ export class GetPicturesController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async getAllPictures(@Req() req: Request) {
+  @ApiQuery({ name: 'tag', required: false, description: 'Nome da tag para filtrar as imagens' })
+  async getAllPictures(@Req() req: Request, @Query('tag') tag?: string) {
     const user = req.user as { id: string };
-    const pictures = await this.getPicturesService.getPictures(user.id);
+    const pictures = await this.getPicturesService.getPictures(user.id, tag);
     return pictures.map(picture => PictureMappers.toDto(picture));
   }
 } 
