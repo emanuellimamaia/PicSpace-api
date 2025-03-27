@@ -10,7 +10,7 @@ export class PictureRepo implements IPictureRepo {
 
   async savePicture(picture: Picture): Promise<Picture> {
     try {
-      // Criar a imagem e as tags em uma única transação
+
       const pictureData = await this.prisma.picture.create({
         data: {
           imageUrl: picture.imageUrl,
@@ -43,7 +43,10 @@ export class PictureRepo implements IPictureRepo {
         ...(tag && {
           tags: {
             some: {
-              name: tag
+              name: {
+                contains: tag,
+                mode: 'insensitive'
+              }
             }
           }
         })
