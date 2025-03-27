@@ -53,7 +53,6 @@ export class ClarifaiService {
 
       return detectedObjects;
     } catch (error) {
-      console.error('Erro ao analisar imagem:', error.response?.data || error.message);
       throw new Error('Erro na análise da imagem');
     }
   }

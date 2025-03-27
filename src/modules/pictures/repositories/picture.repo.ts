@@ -29,7 +29,7 @@ export class PictureRepo implements IPictureRepo {
           tags: true
         }
       });
-      console.log('Saved picture data:', JSON.stringify(pictureData, null, 2));
+
       return PictureMappers.toDomain(pictureData);
     } catch (error) {
       console.error('Error saving picture:', error);
