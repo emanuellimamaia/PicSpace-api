@@ -29,7 +29,6 @@ export class PictureRepo implements IPictureRepo {
           tags: true
         }
       });
-
       return PictureMappers.toDomain(pictureData);
     } catch (error) {
       console.error('Error saving picture:', error);
@@ -54,5 +53,39 @@ export class PictureRepo implements IPictureRepo {
       }
     });
     return pictures.map(picture => PictureMappers.toDomain(picture));
+  }
+
+  async getPictureById(pictureId: string): Promise<Picture | null> {
+    const picture = await this.prisma.picture.findUnique({
+      where: { id: pictureId },
+      include: {
+        tags: true
+      }
+    });
+    return picture ? PictureMappers.toDomain(picture) : null;
+  }
+
+  async deletePicture(pictureId: string): Promise<void> {
+    const picture = await this.prisma.picture.findUnique({
+      where: { id: pictureId },
+      include: { tags: true }
+    });
+
+    if (!picture) {
+      throw new Error('Imagem não encontrada');
+    }
+
+    await this.prisma.picture.update({
+      where: { id: pictureId },
+      data: {
+        tags: {
+          disconnect: picture.tags.map(tag => ({ id: tag.id }))
+        }
+      }
+    });
+
+    await this.prisma.picture.delete({
+      where: { id: pictureId }
+    });
   }
 }

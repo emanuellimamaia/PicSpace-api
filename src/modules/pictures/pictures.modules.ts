@@ -7,16 +7,19 @@ import { DatabaseModule } from 'src/infra/database.module';
 import { PictureRepo } from './repositories/picture.repo';
 import { SavePictureService } from './use-cases/save-picture/save-picture.service';
 import { GetPicturesService } from './use-cases/get-pictures/get-pictures.service';
+import { DeletePictureController } from './use-cases/delete-picture/delete-picture.controller';
+import { DeletePictureService } from './use-cases/delete-picture/delete-picture.service';
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [UploadPictureController, GetPicturesController],
+  controllers: [UploadPictureController, GetPicturesController, DeletePictureController],
   providers: [
     UploadPictureService,
     GetPicturesService,
     ClarifaiService,
     PictureRepo,
     SavePictureService,
+    DeletePictureService,
     {
       provide: 'IPictureRepo',
       useClass: PictureRepo

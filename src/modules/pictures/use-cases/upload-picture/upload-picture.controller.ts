@@ -29,8 +29,6 @@ export class UploadPictureController {
     },
   })
   @UseInterceptors(FileInterceptor('file'))
-  @ApiResponse({ status: 201, description: 'Imagem enviada com sucesso' })
-  @ApiResponse({ status: 400, description: 'Erro ao validar arquivo' })
   async uploadFile(
     @UploadedFile(
       new ParseFilePipe({
