@@ -12,6 +12,7 @@ RUN npm install --only=production
 
 # Copia o restante dos arquivos do projeto
 COPY . .
+RUN npx prisma generate
 
 # Compila o projeto NestJS
 RUN npx prisma generate && npm run build
