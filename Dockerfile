@@ -1,23 +1,45 @@
-# Usa a versão correta do Node
-FROM node:20-alpine
+# Build stage
+FROM node:20-alpine AS builder
 
-# Define o diretório de trabalho dentro do container
 WORKDIR /app
 
-# Copia apenas os arquivos necessários para instalação
+# Copia arquivos de dependências
 COPY package*.json ./
 
-# Instala dependências de forma eficiente
-RUN npm install --only=production
+# Instala todas as dependências (incluindo devDependencies)
+RUN npm ci
 
-# Copia o restante dos arquivos do projeto
+# Copia o restante dos arquivos
 COPY . .
+
+# Gera os arquivos do Prisma
 RUN npx prisma generate
 
-# Compila o projeto NestJS
-RUN npx prisma generate && npm run build
+# Compila o projeto
+RUN npm run build
 
-# Expõe a porta usada pela API (ajuste se necessário)
+# Production stage
+FROM node:20-alpine AS production
+
+WORKDIR /app
+
+# Copia apenas os arquivos necessários do builder
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/prisma ./prisma
+
+# Instala apenas as dependências de produção
+RUN npm ci --only=production
+
+# Gera os arquivos do Prisma novamente para garantir
+RUN npx prisma generate
+
+# Define variáveis de ambiente
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Expõe a porta
 EXPOSE 3000
 
 # Comando para iniciar a aplicação
