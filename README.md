@@ -111,7 +111,7 @@ docker run -p 3000:3000 \
 
 ### API Documentation
 
-You can use Swagger to view and interact with the API at `/api`. Swagger provides a user-friendly interface to explore available endpoints, test different requests, and see API responses in real-time. To access the Swagger documentation, start the project and navigate to `http://localhost:3000/api` in your browser.
+You can use Swagger to view and interact with the API at `/api`. Swagger provides a user-friendly interface to explore available endpoints, test different requests, and see API responses in real-time. To access the Swagger documentation, start the project and navigate to `http://localhost:8080/api` in your browser.
 
 ### Authentication
 
@@ -127,21 +127,22 @@ You can use Swagger to view and interact with the API at `/api`. Swagger provide
 
 ### Short Term
 
-- [ ] Implement Redis caching
-- [ ] Add file size and type validation
-- [ ] Implement automatic backup system
+- [ ] Sidebar
+- [ ] Edit Tags
+- [ ] Edit Perfil
+- [ ] Recovey password
 - [ ] Add e2e tests
 
 ### Medium Term
 
-- [ ] Implement CDN for better performance
+- [ ] Group photos
+- [ ] Add albums
 - [ ] Add support for multiple storage providers
-- [ ] Implement album system
 - [ ] Add video support
+- [ ] Implement video analysis
 
 ### Long Term
 
-- [ ] Implement video analysis
 - [ ] Add real-time collaboration support
 - [ ] Implement recommendation system
 - [ ] Add multi-language support
