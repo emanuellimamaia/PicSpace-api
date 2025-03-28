@@ -127,7 +127,6 @@ You can use Swagger to view and interact with the API at `/api`. Swagger provide
 
 ### Short Term
 
-- [ ] Sidebar
 - [ ] Edit Tags
 - [ ] Edit Perfil
 - [ ] Recovey password
