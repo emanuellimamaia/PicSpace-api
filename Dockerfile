@@ -1,46 +1,30 @@
-# Build stage
-FROM node:20-alpine AS builder
+FROM node:18-alpine3.19 as build
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
-# Copia arquivos de dependências
 COPY package*.json ./
+COPY prisma ./prisma/
 
-# Instala todas as dependências (incluindo devDependencies)
-RUN npm ci
+RUN npm install
+RUN npx prisma generate
 
-# Copia o restante dos arquivos
 COPY . .
 
-# Gera os arquivos do Prisma
-RUN npx prisma generate
-
-# Compila o projeto
 RUN npm run build
+RUN npm cache clean --force
 
-# Production stage
-FROM node:20-alpine AS production
 
-WORKDIR /app
+FROM node:18-alpine3.19
 
-# Copia apenas os arquivos necessários do builder
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/prisma ./prisma
+WORKDIR /usr/src/app
 
-# Instala apenas as dependências de produção
-RUN npm ci --only=production
+COPY --from=build /usr/src/app/package.json ./
+COPY --from=build /usr/src/app/tsconfig.json ./
+COPY --from=build /usr/src/app/dist ./dist
+COPY --from=build /usr/src/app/node_modules ./node_modules
 
-# Gera os arquivos do Prisma novamente para garantir
-RUN npx prisma generate
 
-# Define variáveis de ambiente
-ENV NODE_ENV=production
-ENV PORT=3000
+EXPOSE 7070
 
-# Expõe a porta
-EXPOSE 3000
-
-# Comando para iniciar a aplicação
+# Start the application
 CMD ["npm", "run", "start:prod"]
