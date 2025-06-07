@@ -22,11 +22,11 @@ jobs:
       - run: npm install
       - run: npm run build
 
-      -name: Semantic  Release
+      - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v4
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          
+
       - name: Generate tag
         id: generate_tag
         run: |
@@ -55,21 +55,21 @@ jobs:
           IMAGE=$(echo $REGISTRY/picspace-api-ci:$TAG) 
           echo "image=$IMAGE" >> $GITHUB_OUTPUT
 
-      - name: Deploy to app runner
-        uses: awslabs/amazon-app-runner-deploy@main
-        with:
-          service: picspace-api
-          image: ${{ steps.build-docker-image.outputs.image}}
-          access-role-arn: arn:aws:iam::307896280100:role/app-runner-role
-          region: us-east-1
-          cpu: 1
-          memory: 2
-          port: 3000
+      #- name: Deploy to app runner
+      #  uses: awslabs/amazon-app-runner-deploy@main
+      #  with:
+      #    service: picspace-api
+      #    image: ${{ steps.build-docker-image.outputs.image}}
+      #   access-role-arn: arn:aws:iam::307896280100:role/app-runner-role
+      #    region: us-east-1
+      #   cpu: 1
+      #     memory: 2
+      #  port: 3000
 
-        # - uses: docker/login-action@v3
-        # with:
-        #   username: ${{ secrets.DOCKERHUB_USERNAME }}
-        #   password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # - uses: docker/login-action@v3
+      # with:
+      #   username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #   password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # - name: Push image
       #   run: docker push emanuellimamaia/fulog-backend:${{ steps.generate_tag.outputs.sha}}
