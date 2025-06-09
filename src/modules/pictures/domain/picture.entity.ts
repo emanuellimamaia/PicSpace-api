@@ -29,5 +29,5 @@ export class Picture extends Entity<PictureProps> {
   get tags() {
     return this.props.tags
   }
-
+  //remover depois esse comentario
 }
