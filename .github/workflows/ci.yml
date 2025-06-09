@@ -51,9 +51,7 @@ jobs:
           REPOSITORY: 'picspace-api-ci'
         run: |
           docker build -t $REGISTRY/picspace-api-ci:$TAG .
-          docker build -t $REGISTRY/picspace-api-ci:latest .
           docker push $REGISTRY/picspace-api-ci:$TAG
-          docker push $REGISTRY/picspace-api-ci:latest
           IMAGE=$(echo $REGISTRY/picspace-api-ci:$TAG) 
           echo "image=$IMAGE" >> $GITHUB_OUTPUT
 
